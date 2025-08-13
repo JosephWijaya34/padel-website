@@ -14,7 +14,7 @@
 </head>
 
 <body class=" bg-background min-h-screen flex flex-col font-roboto">
-    <x-client.navbar></x-client.navbar>
+    {{-- <x-client.navbar></x-client.navbar> --}}
     <div class="relative my-[50px] px-[50px] md:mb-[100px] flex-1">
         {{ $slot }}
     </div>
