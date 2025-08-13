@@ -14,48 +14,68 @@ class ExternalController extends Controller
     {
         try {
             $courts = $this->api->courts();
-            dd($courts);
-            return view('ext.courts-index', compact('courts'));
+
+            // Sort courts berdasarkan ID (ascending) agar dimulai dari ID 1
+            $courts = collect($courts)->sortBy('id')->values()->all();
+
+            return view('dashboard', compact('courts'));
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to load courts');
+            // Jika API gagal, tetap tampilkan dashboard dengan array kosong dan error message
+            $courts = [];
+            return view('dashboard', compact('courts'))->with('error', 'Failed to load courts from API');
         }
     }
 
     // Function get court detail
-    public function courtShow(string $id)
-    {
-        $court = $this->api->court($id);
-        dd($court);
-        abort_if(!$court, 404);
-        return view('ext.court-show', compact('court'));
-    }
+    // public function courtShow(string $id)
+    // {
+    //     $court = $this->api->court($id);
+    //     dd($court);
+    //     abort_if(!$court, 404);
+    //     return view('ext.court-show', compact('court'));
+    // }
 
     //get all BOOKING HOURS
-    public function bookingHoursIndex()
-    {
-        $items = $this->api->bookingHours();
-        dd($items);
-        return view('ext.booking-hours-index', ['bookingHours' => $items]);
-    }
+    // public function bookingHoursIndex()
+    // {
+    //     $items = $this->api->bookingHours();
+    //     dd($items);
+    //     return view('ext.booking-hours-index', ['bookingHours' => $items]);
+    // }
 
     // Function get Booking Hour by Id
-    public function bookingHourShow(string $id)
-    {
-        $bh = $this->api->bookingHour($id);
-        dd($bh);
-        abort_if(!$bh, 404);
-        return view('ext.booking-hour-show', compact('bh'));
-    }
+    // public function bookingHourShow(string $id)
+    // {
+    //     $bh = $this->api->bookingHour($id);
+    //     dd($bh);
+    //     abort_if(!$bh, 404);
+    //     return view('ext.booking-hour-show', compact('bh'));
+    // }
 
     // Function get Booking Hours by Court Id
     public function bookingHoursByCourt(string $courtId)
     {
-        $items = $this->api->bookingHoursByCourt($courtId);
-        dd($items);
-        return view('ext.booking-hours-by-court', [
-            'bookingHours' => $items,
-            'courtId'      => $courtId,
-        ]);
+        try {
+            $items = $this->api->bookingHoursByCourt($courtId);
+
+            // Sort booking hours berdasarkan tanggal dan waktu start (ascending)
+            $bookingHours = collect($items)->sortBy('dateStartUtc')->values()->all();
+
+            // Get court info from first booking hour or use courtId as fallback
+            $courtName = !empty($bookingHours) && $bookingHours[0]->court
+                ? $bookingHours[0]->court->name
+                : "Court $courtId";
+
+            // dd($bookingHours, $courtName,$courtId);
+
+            return view('datelist', [
+                'bookingHours' => $bookingHours,
+                'courtId' => $courtId,
+                'courtName' => $courtName
+            ]);
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to load booking hours for this court');
+        }
     }
 
     // Function get Clip by booking Hour Id
@@ -63,8 +83,36 @@ class ExternalController extends Controller
     {
         try {
             $clips = $this->api->clipsByBookingHour($bookingHourId);
-            dd($clips);
-            return view('ext.clips-by-booking-hour', compact('clips', 'bookingHourId'));
+
+            // Get booking hour info untuk context
+            $bookingHour = $this->api->bookingHour($bookingHourId);
+
+            // Create context untuk cliplist view
+            $timeSlot = $bookingHour
+                ? $bookingHour->dateStartUtc->format('D, d M Y H:i') . ' - ' . $bookingHour->dateEndUtc->format('H:i') . ' WIB'
+                : "Time Slot $bookingHourId";
+
+            // Generate streaming URLs untuk setiap clip
+            $streamingBaseUrl = config('iot.streaming_url');
+            $clipsWithStreamUrl = collect($clips)->map(function ($clip) use ($streamingBaseUrl) {
+                // Generate full streaming URL dengan menggabungkan base URL + file path
+                $streamUrl = $streamingBaseUrl && $clip->filePath
+                    ? rtrim($streamingBaseUrl, '/') . '/' . ltrim($clip->filePath, '/')
+                    : null;
+
+                // Convert clip object to array untuk modifikasi
+                $clipArray = $clip->toArray();
+                $clipArray['streamUrl'] = $streamUrl;
+
+                return (object) $clipArray;
+            })->all();
+
+            return view('cliplist', [
+                'clips' => $clipsWithStreamUrl,
+                'bookingHourId' => $bookingHourId,
+                'timeSlot' => $timeSlot,
+                'bookingHour' => $bookingHour
+            ]);
         } catch (\Throwable $e) {
             report($e);
             return back()->with('error', 'Gagal memuat clips dari API.');
