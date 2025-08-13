@@ -7,6 +7,11 @@ Route::get('/', function () {
     return view('dashboard');
 });
 
+Route::get('/court', function () {
+    return view('cliplist');
+});
+
+
 // Testing External API Routes
 // Route::prefix('external')->name('external.')->group(function () {
     // Courts Routes
@@ -22,3 +27,4 @@ Route::get('/', function () {
     Route::get('/clips/booking-hour/{bookingHourId}', [ExternalController::class, 'clipsByBookingHour'])->name('clips.by-booking-hour');
     Route::get('/clips/{clipId}/download', [ExternalController::class, 'redirectDownload'])->name('external.clips.download');
 // });
+
