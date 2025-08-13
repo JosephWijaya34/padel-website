@@ -31,7 +31,7 @@ class AppServiceProvider extends ServiceProvider
                     fn($e) =>
                     in_array(optional($e->response)->status(), [429, 500, 502, 503, 504], true)
                 )
-                ->withUserAgent('PadelWebsite/1.0 (Laravel11)');
+                ->withUserAgent('PadelWebsite/1.0 (Laravel12)');
         });
     }
 }

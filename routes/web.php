@@ -8,7 +8,7 @@ Route::get('/', function () {
 });
 
 // Testing External API Routes
-Route::prefix('external')->name('external.')->group(function () {
+// Route::prefix('external')->name('external.')->group(function () {
     // Courts Routes
     Route::get('/courts', [ExternalController::class, 'courtsIndex'])->name('courts.index');
     Route::get('/courts/{id}', [ExternalController::class, 'courtShow'])->name('courts.show');
@@ -16,8 +16,9 @@ Route::prefix('external')->name('external.')->group(function () {
     // Booking Hours Routes
     Route::get('/booking-hours', [ExternalController::class, 'bookingHoursIndex'])->name('booking-hours.index');
     Route::get('/booking-hours/{id}', [ExternalController::class, 'bookingHourShow'])->name('booking-hours.show');
+    Route::get('/booking-hours/court/{courtId}', [ExternalController::class, 'bookingHoursByCourt'])->name('booking-hours.by-court');
 
-    // Clips Routes (uncommented for testing)
-    // Route::get('/clips/booking-hour/{bookingHourId}', [ExternalController::class, 'clipsByBookingHour'])->name('clips.by-booking-hour');
-    // Route::get('/clips/court/{courtId}/clip/{clipId}', [ExternalController::class, 'clipByCourt'])->name('clips.by-court');
-});
+    // Clips Routes
+    Route::get('/clips/booking-hour/{bookingHourId}', [ExternalController::class, 'clipsByBookingHour'])->name('clips.by-booking-hour');
+    Route::get('/clips/{clipId}/download', [ExternalController::class, 'redirectDownload'])->name('external.clips.download');
+// });
