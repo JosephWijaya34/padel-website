@@ -17,6 +17,25 @@ final class BookingHour
     ) {}
 
     /** payload: objek booking hour langsung */
+    // public static function fromArray(array $a): self
+    // {
+    //     // handle nested court kalau ada
+    //     $court = null;
+    //     if (!empty($a['court']) && is_array($a['court'])) {
+    //         $court = Court::fromArray($a['court']);
+    //     }
+
+    //     return new self(
+    //         id:        (int) $a['id'],
+    //         courtId:   (int) ($a['courtId'] ?? $a['court_id']),
+    //         dateStartUtc: new CarbonImmutable($a['dateStart']),
+    //         dateEndUtc:   new CarbonImmutable($a['dateEnd']),
+    //         createdAtUtc: new CarbonImmutable($a['createdAt'] ?? $a['created_at']),
+    //         updatedAtUtc: new CarbonImmutable($a['updatedAt'] ?? $a['updated_at']),
+    //         court:     $court,
+    //     );
+    // }
+
     public static function fromArray(array $a): self
     {
         // handle nested court kalau ada
@@ -24,15 +43,17 @@ final class BookingHour
         if (!empty($a['court']) && is_array($a['court'])) {
             $court = Court::fromArray($a['court']);
         }
+        // fungsi helper untuk parse dan convert timezone
+        $toWib = fn($date) => (new CarbonImmutable($date, 'UTC'))->setTimezone('Asia/Jakarta');
 
         return new self(
-            id:        (int) $a['id'],
-            courtId:   (int) ($a['courtId'] ?? $a['court_id']),
-            dateStartUtc: new CarbonImmutable($a['dateStart']),
-            dateEndUtc:   new CarbonImmutable($a['dateEnd']),
-            createdAtUtc: new CarbonImmutable($a['createdAt'] ?? $a['created_at']),
-            updatedAtUtc: new CarbonImmutable($a['updatedAt'] ?? $a['updated_at']),
-            court:     $court,
+            id: (int) $a['id'],
+            courtId: (int) ($a['courtId'] ?? $a['court_id']),
+            dateStartUtc: $toWib($a['dateStart']),
+            dateEndUtc: $toWib($a['dateEnd']),
+            createdAtUtc: $toWib($a['createdAt'] ?? $a['created_at']),
+            updatedAtUtc: $toWib($a['updatedAt'] ?? $a['updated_at']),
+            court: $court,
         );
     }
 

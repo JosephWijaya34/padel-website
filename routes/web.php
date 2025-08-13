@@ -3,9 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ExternalController;
 
-Route::get('/', function () {
-    return view('dashboard');
-})->name('dashboard');
+// Homepage dengan data courts dari API menggunakan courtsIndex
+Route::get('/', [ExternalController::class, 'courtsIndex'])->name('dashboard');
 
 Route::get('/court', function () {
     return view('datelist');
@@ -29,6 +28,6 @@ Route::get('/clips', function () {
 
     // Clips Routes
     Route::get('/clips/booking-hour/{bookingHourId}', [ExternalController::class, 'clipsByBookingHour'])->name('clips.by-booking-hour');
-    Route::get('/clips/{clipId}/download', [ExternalController::class, 'redirectDownload'])->name('external.clips.download');
+    Route::get('/clips/{clipId}/download', [ExternalController::class, 'redirectDownload'])->name('clips.download');
 // });
 
