@@ -5,9 +5,13 @@ use App\Http\Controllers\ExternalController;
 
 Route::get('/', function () {
     return view('dashboard');
-});
+})->name('dashboard');
 
 Route::get('/court', function () {
+    return view('datelist');
+});
+
+Route::get('/clips', function () {
     return view('cliplist');
 });
 

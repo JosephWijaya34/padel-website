@@ -4,11 +4,8 @@
         {{ $title ?? 'Video Title' }}
     </div>
     <div class="flex space-x-4">
-        <a href="{{ $videoUrl }}" target="_blank" class="bg-lime-400 text-white px-4 py-2 rounded hover:bg-lime-600">
-            Preview
-        </a>
-        <a href="{{ $downloadUrl }}" download class="bg-match-coral text-white px-4 py-2 rounded hover:bg-darker-coral">
-            Download
+        <a href="{{ $href }}" download class="bg-match-coral text-white px-4 py-2 rounded hover:bg-darker-coral">
+            >
         </a>
     </div>
 </div>
