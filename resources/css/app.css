@@ -1,13 +1,21 @@
-@import 'tailwindcss';
-@import 'flowbite';
-
-
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
+@import "tailwindcss";
+@import "flowbite";
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --color-primary: #0c3d3c;
+    --color-cta: #d93b27;
+    --color-accent: #e9ec90;
+    --color-background: #f4f7f6;
+    --color-card: #ffffff;
+    --color-text: #0b0f10;
+    --color-secondary: #163939;
+    --color-match-coral: #d93b27;
+    --color-darker-coral: #b23621;
+    --color-padel-teal: #0c3d3c;
+    --color-ball-lime: #e9ec90;
+    --color-darker-lime: #d2d674;
+
+    --font-display: 'Rubik', sans-serif;
+    --font-sans: 'Inter', sans-serif;
+    --font-tally: '"Bebas Neue"', sans-serif;
 }

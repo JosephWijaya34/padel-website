@@ -9,17 +9,17 @@
             downloadUrl="https://example.com/videos/video1.mp4" 
         />
         <x-core.video-item 
-            title="Video 2"
+            title="Tue, 10 Oct 2023 12:00:00 WIB"
             videoUrl="https://example.com/videos/video2.mp4" 
             downloadUrl="https://example.com/videos/video2.mp4" 
         />
         <x-core.video-item 
-            title="Video 3"
+            title="Tue, 10 Oct 2023 12:00:00 WIB"
             videoUrl="https://example.com/videos/video3.mp4" 
             downloadUrl="https://example.com/videos/video3.mp4" 
         />
         <x-core.video-item 
-            title="Video 4"
+            title="Tue, 10 Oct 2023 12:00:00 WIB"
             videoUrl="https://example.com/videos/video4.mp4" 
             downloadUrl="https://example.com/videos/video4.mp4" 
         />

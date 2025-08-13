@@ -1,8 +1,7 @@
-<nav class="bg-white border-gray-200 dark:bg-gray-900">
+<nav class="bg-primary border-gray-200 font-display">
     <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-        <a href="https://flowbite.com/" class="flex items-center space-x-3 rtl:space-x-reverse">
-            <img src="https://flowbite.com/docs/images/logo.svg" class="h-8" alt="Flowbite Logo" />
-            <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Flowbite</span>
+        <a href="#" class="flex items-center space-x-3 rtl:space-x-reverse">
+            <img src="{{ asset('img/padeluplogo.png') }}" class="h-16" alt="Flowbite Logo" />
         </a>
         <button data-collapse-toggle="navbar-default" type="button"
             class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200"
@@ -19,12 +18,12 @@
                 class="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0">
                 <li>
                     <a href="#"
-                        class="block py-2 px-3 text-white bg-blue-700 rounded-sm md:bg-transparent md:text-blue-700 md:p-0"
+                        class="block py-2 px-3 text-match-coral font-semibold rounded-sm md:bg-transparent md:text-match-coral md:p-0"
                         aria-current="page">Home</a>
                 </li>
                 <li>
                     <a href="#"
-                        class="block py-2 px-3 text-white rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0">Court</a>
+                        class="block py-2 px-3 text-white rounded-sm hover:text-match-coral md:hover:bg-transparent md:border-0 md:hover:text-match-coral md:p-0">Court</a>
                 </li>
             </ul>
         </div>
