@@ -2,8 +2,9 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,6 +22,7 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Paginator::defaultView('vendor.pagination.custom');
         Http::macro('clipping', function () {
             return Http::baseUrl(config('iot.base_url'))
                 ->timeout(config('iot.timeout', 30))

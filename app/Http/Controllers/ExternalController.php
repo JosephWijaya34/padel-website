@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\ExternalApiClient;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ExternalController extends Controller
 {
@@ -59,17 +60,29 @@ class ExternalController extends Controller
             $items = $this->api->bookingHoursByCourt($courtId);
 
             // Sort booking hours berdasarkan tanggal dan waktu start (ascending)
-            $bookingHours = collect($items)->sortBy('dateStartUtc')->values()->all();
+            $bookingHours = collect($items)->sortBy('dateStartUtc')->values();
 
             // Get court info from first booking hour or use courtId as fallback
-            $courtName = !empty($bookingHours) && $bookingHours[0]->court
-                ? $bookingHours[0]->court->name
+            $courtName = !empty($bookingHours) && $bookingHours->first()->court
+                ? $bookingHours->first()->court->name
                 : "Court $courtId";
 
-            // dd($bookingHours, $courtName,$courtId);
+            // Pagination logic
+            $perPage = 10; // Jumlah item per halaman
+            $currentPage = request()->get('page', 1); // Halaman saat ini
+            $currentItems = $bookingHours->slice(($currentPage - 1) * $perPage, $perPage)->values(); // Data untuk halaman saat ini
+
+            // Buat paginator manual
+            $paginatedBookingHours = new LengthAwarePaginator(
+                $currentItems, // Data untuk halaman saat ini
+                $bookingHours->count(), // Total item
+                $perPage, // Jumlah item per halaman
+                $currentPage, // Halaman saat ini
+                ['path' => request()->url(), 'query' => request()->query()] // URL dan query string
+            );
 
             return view('datelist', [
-                'bookingHours' => $bookingHours,
+                'bookingHours' => $paginatedBookingHours,
                 'courtId' => $courtId,
                 'courtName' => $courtName
             ]);
@@ -105,10 +118,24 @@ class ExternalController extends Controller
                 $clipArray['streamUrl'] = $streamUrl;
 
                 return (object) $clipArray;
-            })->all();
+            });
+
+            // Pagination logic
+            $perPage = 10; // Jumlah item per halaman
+            $currentPage = request()->get('page', 1); // Halaman saat ini
+            $currentItems = $clipsWithStreamUrl->slice(($currentPage - 1) * $perPage, $perPage)->values(); // Data untuk halaman saat ini
+
+            // Buat paginator manual
+            $paginatedClips = new LengthAwarePaginator(
+                $currentItems, // Data untuk halaman saat ini
+                $clipsWithStreamUrl->count(), // Total item
+                $perPage, // Jumlah item per halaman
+                $currentPage, // Halaman saat ini
+                ['path' => request()->url(), 'query' => request()->query()] // URL dan query string
+            );
 
             return view('cliplist', [
-                'clips' => $clipsWithStreamUrl,
+                'clips' => $paginatedClips,
                 'bookingHourId' => $bookingHourId,
                 'timeSlot' => $timeSlot,
                 'bookingHour' => $bookingHour

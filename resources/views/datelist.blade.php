@@ -12,7 +12,7 @@
         </p>
 
         {{-- Display error message if any --}}
-        @if(session('error'))
+        @if (session('error'))
             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
                 {{ session('error') }}
             </div>
@@ -21,7 +21,8 @@
 
     {{-- Back Button --}}
     <div class="mt-4">
-        <a href="{{ route('dashboard') }}" class="inline-block px-4 py-2 bg-secondary hover:bg-green-900 text-white rounded-lg shadow hover:bg-opacity-90 transition">
+        <a href="{{ route('dashboard') }}"
+            class="inline-block px-4 py-2 bg-secondary hover:bg-green-900 text-white rounded-lg shadow hover:bg-opacity-90 transition">
             &larr; Back to Dashboard
         </a>
     </div>
@@ -31,14 +32,19 @@
         @forelse($bookingHours ?? [] as $bookingHour)
             <x-core.date-card
                 title="{{ $bookingHour->dateStartUtc->format('D, d M Y H:i') }} - {{ $bookingHour->dateEndUtc->format('H:i') }} WIB"
-                href="{{ route('clips.by-booking-hour', $bookingHour->id) }}"
-                bookingHourId="{{ $bookingHour->id }}"
-            />
+                href="{{ route('clips.by-booking-hour', $bookingHour->id) }}" bookingHourId="{{ $bookingHour->id }}" />
         @empty
             <div class="text-center py-8">
                 <p class="text-gray-500">No booking sessions available for this court.</p>
-                <a href="{{ route('dashboard') }}" class="text-blue-500 hover:underline mt-2 inline-block">← Back to Courts</a>
+                <a href="{{ route('dashboard') }}" class="text-blue-500 hover:underline mt-2 inline-block">← Back to
+                    Courts</a>
             </div>
         @endforelse
+    </div>
+
+    {{-- Pagination Links --}}
+    <div class="mt-4 {{ $bookingHours->isEmpty() ? 'hidden' : '' }}">
+        {{-- Ensure links are only shown if there are booking hours --}}
+        {{ $bookingHours->links() }}
     </div>
 </x-client.layout>
