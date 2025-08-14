@@ -55,4 +55,10 @@
             </div>
         @endforelse
     </div>
+
+    {{-- Pagination Links --}}
+    <div class="mt-4 {{ $clips->isEmpty() ? 'hidden' : '' }}">
+        {{-- Ensure links are only shown if there are booking hours --}}
+        {{ $clips->links() }}
+    </div>
 </x-client.layout>
