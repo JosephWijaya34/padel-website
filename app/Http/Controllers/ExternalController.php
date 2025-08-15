@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\ExternalApiClient;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Carbon\Carbon;
 
 class ExternalController extends Controller
 {
@@ -62,6 +63,8 @@ class ExternalController extends Controller
             // Sort booking hours berdasarkan tanggal dan waktu start (ascending)
             $bookingHours = collect($items)->sortBy('dateStartUtc')->values();
 
+            // dd($bookingHours);
+
             // Get court info from first booking hour or use courtId as fallback
             $courtName = !empty($bookingHours) && $bookingHours->first()->court
                 ? $bookingHours->first()->court->name
@@ -105,17 +108,22 @@ class ExternalController extends Controller
                 ? $bookingHour->dateStartUtc->format('D, d M Y H:i') . ' - ' . $bookingHour->dateEndUtc->format('H:i') . ' WIB'
                 : "Time Slot $bookingHourId";
 
-            // Generate streaming URLs untuk setiap clip
+            // Generate streaming URLs + convert createdAt ke WIB
             $streamingBaseUrl = config('iot.streaming_url');
             $clipsWithStreamUrl = collect($clips)->map(function ($clip) use ($streamingBaseUrl) {
-                // Generate full streaming URL dengan menggabungkan base URL + file path
                 $streamUrl = $streamingBaseUrl && $clip->filePath
                     ? rtrim($streamingBaseUrl, '/') . '/' . ltrim($clip->filePath, '/')
                     : null;
 
-                // Convert clip object to array untuk modifikasi
                 $clipArray = $clip->toArray();
                 $clipArray['streamUrl'] = $streamUrl;
+
+                // Konversi createdAt dari UTC ke WIB
+                if (!empty($clipArray['createdAt'])) {
+                    $clipArray['createdAt'] = Carbon::parse($clipArray['createdAt'])
+                        ->setTimezone('Asia/Jakarta')
+                        ->format('d M Y H:i');
+                }
 
                 return (object) $clipArray;
             });
@@ -123,15 +131,17 @@ class ExternalController extends Controller
             // Pagination logic
             $perPage = 10; // Jumlah item per halaman
             $currentPage = request()->get('page', 1); // Halaman saat ini
-            $currentItems = $clipsWithStreamUrl->slice(($currentPage - 1) * $perPage, $perPage)->values(); // Data untuk halaman saat ini
+            $currentItems = $clipsWithStreamUrl
+                ->slice(($currentPage - 1) * $perPage, $perPage)
+                ->values();
 
             // Buat paginator manual
             $paginatedClips = new LengthAwarePaginator(
-                $currentItems, // Data untuk halaman saat ini
-                $clipsWithStreamUrl->count(), // Total item
-                $perPage, // Jumlah item per halaman
-                $currentPage, // Halaman saat ini
-                ['path' => request()->url(), 'query' => request()->query()] // URL dan query string
+                $currentItems,
+                $clipsWithStreamUrl->count(),
+                $perPage,
+                $currentPage,
+                ['path' => request()->url(), 'query' => request()->query()]
             );
 
             return view('cliplist', [
@@ -150,26 +160,28 @@ class ExternalController extends Controller
     {
         try {
             $clip = $this->api->clipById($clipId);
-
+    
             // Check if clip exists
             abort_if(!$clip, 404, 'Clip not found');
-
+    
             // Double-safety: pastikan filePath relatif
             $filePath = ltrim($clip->filePath, '/');
             $base = rtrim((string) config('iot.base_url'), '/');
             abort_if(!$base, 500, 'Files base URL not configured');
-
+    
             $url = "{$base}/{$filePath}";
-
-            // Debug: lihat URL yang di-generate
-            // dd([
-            //     'clip' => $clip,
-            //     'base_url' => $base,
-            //     'file_path' => $filePath,
-            //     'final_url' => $url,
-            // ]);
-
-            return redirect()->away($url);
+    
+            // Ambil konten file dari URL eksternal
+            $fileContent = file_get_contents($url);
+            abort_if(!$fileContent, 500, 'Failed to retrieve file content.');
+    
+            // Tentukan nama file untuk diunduh
+            $fileName = basename($filePath);
+    
+            // Stream file ke pengguna untuk diunduh
+            return response()->streamDownload(function () use ($fileContent) {
+                echo $fileContent;
+            }, $fileName);
         } catch (\Throwable $e) {
             report($e);
             return back()->with('error', 'Failed to download clip: ' . $e->getMessage());

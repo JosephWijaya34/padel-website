@@ -16,23 +16,21 @@ class ExternalApiClient
     /** @return Court[] */
     public function courts(): array
     {
-        return Cache::remember('ext:courts', now()->addMinutes(5), function () {
-            $res = Http::clipping()->get('/api/v1/courts');
+        $res = Http::clipping()->get('/api/v1/courts');
 
-            if ($res->failed()) {
-                Log::warning('GET /api/v1/courts failed', [
-                    'status' => $res->status(),
-                    'body'   => $res->body(),
-                ]);
-                $res->throw();
-            }
+        if ($res->failed()) {
+            Log::warning('GET /api/v1/courts failed', [
+                'status' => $res->status(),
+                'body'   => $res->body(),
+            ]);
+            $res->throw();
+        }
 
-            $rows = $res->json('data') ?? $res->json() ?? [];
-            // handle kalau API sewaktu-waktu balikin object tunggal:
-            $rows = is_array($rows) && array_is_list($rows) ? $rows : (is_array($rows) ? [$rows] : []);
+        $rows = $res->json('data') ?? $res->json() ?? [];
+        // handle kalau API sewaktu-waktu balikin object tunggal:
+        $rows = is_array($rows) && array_is_list($rows) ? $rows : (is_array($rows) ? [$rows] : []);
 
-            return array_map(fn($r) => Court::fromArray($r), $rows);
-        });
+        return array_map(fn($r) => Court::fromArray($r), $rows);
     }
 
     // get /api/v1/courts/{id} untuk ambil detail lapangan
@@ -59,25 +57,23 @@ class ExternalApiClient
     // get /api/v1/booking-hours untuk ambil semua jam booking
     public function bookingHours(): array
     {
-        return Cache::remember('ext:booking-hours', now()->addMinutes(2), function () {
-            $res = Http::clipping()->get('/api/v1/booking-hours'); // per body yang kamu kirim
+        $res = Http::clipping()->get('/api/v1/booking-hours'); // per body yang kamu kirim
 
-            if ($res->failed()) {
-                Log::warning('GET /api/v1/booking-hours failed', [
-                    'status' => $res->status(),
-                    'body'   => $res->body(),
-                ]);
-                $res->throw();
-            }
+        if ($res->failed()) {
+            Log::warning('GET /api/v1/booking-hours failed', [
+                'status' => $res->status(),
+                'body'   => $res->body(),
+            ]);
+            $res->throw();
+        }
 
-            // envelope: { message, data: [...], success }
-            $rows = $res->json('data') ?? [];
+        // envelope: { message, data: [...], success }
+        $rows = $res->json('data') ?? [];
 
-            // pastikan array list
-            if (!is_array($rows)) $rows = [];
+        // pastikan array list
+        if (!is_array($rows)) $rows = [];
 
-            return array_map(fn($r) => BookingHour::fromArray($r), $rows);
-        });
+        return array_map(fn($r) => BookingHour::fromArray($r), $rows);
     }
 
     // get /api/v1/booking-hours/{id} untuk ambil detail jam booking
@@ -133,7 +129,7 @@ class ExternalApiClient
     {
         // cache singkat karena list clip bisa sering berubah saat upload/processing
         $cacheKey = "ext:clips:bh:{$bookingHourId}";
-        return Cache::remember($cacheKey, now()->addMinute(), function () use ($bookingHourId) {
+
             $res = Http::clipping()->get("/api/v1/clips/bookingHour/{$bookingHourId}");
 
             if ($res->failed()) {
@@ -149,7 +145,6 @@ class ExternalApiClient
             if (!is_array($rows)) $rows = [];
 
             return array_map(fn($r) => Clip::fromArray($r), $rows);
-        });
     }
 
     // get /api/v1/clips/clipp/{id} untuk ambil detail clip

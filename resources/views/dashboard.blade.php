@@ -24,6 +24,7 @@
             <x-core.button>
                 <x-slot:nolapangan>{{ $court->name }}</x-slot:nolapangan>
                 <x-slot:courtId>{{ $court->id }}</x-slot:courtId>
+                <x-slot:gambar>{{ $court->id == 1 ? asset('img/lapaquviva.jpeg') : asset('img/lapisoplus.jpeg') }}</x-slot:gambar>
                 <x-slot:action>{{ route('booking-hours.by-court', $court->id) }}</x-slot:action>
             </x-core.button>
         @empty
